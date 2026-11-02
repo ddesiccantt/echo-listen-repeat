@@ -1,2 +1,45 @@
-# echo-listen-repeat
-Echo: browser-based Listen &amp; Repeat practice with a customizable 2-second pause, recording, transcription, and word comparison.
+# Echo · 听见，再说一遍
+
+适合电脑和手机的 Listen & Repeat 英语复述练习网页。纯静态网站，无需 API 密钥。
+
+## 功能
+
+- 播完英语句子后等待 2 秒再复述，等待时间可设置为 0–30 秒。
+- 录音、回放、浏览器语音识别和可编辑转写。
+- 逐词对照原句，标出匹配、遗漏和多说的单词。
+- 跳过、重听、重复练习、随机出题及语速调整。
+- 内置 24 句场景示例，支持按行粘贴导入自定义句库并自动去重。
+- 手机自适应布局；句库、偏好与每日练习次数保存在当前浏览器。
+
+内置内容为自编练习示例，并非官方真题；本工具不是 ETS 官方产品。文字匹配率不是官方评分，不评估发音或语调。
+
+## GitHub Pages 部署
+
+本仓库的网页位于 `docs/`。在仓库 **Settings → Pages** 中选择 **Deploy from a branch**，分支选择 **main**，目录选择 **/docs** 并保存。
+
+部署完成后，GitHub Pages 设置页将显示公开的 HTTPS 网址。访问网站无需 GitHub 账号。
+
+## 本地运行
+
+```sh
+python -m http.server 4173 --bind 127.0.0.1 --directory docs
+```
+
+打开 http://127.0.0.1:4173/ 。
+
+## 验证
+
+需要 Node.js 20 或更新版本：
+
+```sh
+node --check docs/app.js
+node check.mjs
+```
+
+流程测试使用模拟音频接口，覆盖播放结束触发计时、2 秒等待、录音与回放、取消与跳过、文字对照、导入去重、持久化与 HTML 转义。实际麦克风和语音识别需在设备上允许权限后验证。
+
+## 浏览器与隐私
+
+英语播放使用设备 Speech Synthesis，录音使用 MediaRecorder；录音需要 HTTPS 或 localhost，以及麦克风权限。自动转写依赖浏览器 SpeechRecognition，建议 Chrome 或 Edge，可用性取决于浏览器、网络及其语音服务。不支持转写时仍可录音回放并手动输入。
+
+录音仅用于当前页面回放，切换句子或离开页面时清除，本站不上传或持久化录音。浏览器语音识别服务可能向其服务商传输声音。自定义句库与偏好存储在当前浏览器，不跨设备同步。

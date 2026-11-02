@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6752d8"><meta name="description" content="听一句，停两秒，再说一遍。支持自定义句库、等待时间、录音回放和文字对照的 Listen & Repeat 练习工具。">
+  <title>Echo · 听见，再说一遍</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%236752d8'/%3E%3Cpath d='M16 29v6m8-15v24m8-31v38m8-31v24m8-15v6' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+</head>
+<body>
+<svg class="symbols" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 0 1-3 3H3"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7Zm14 0v14"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5v16M3 3c4-1 7 0 9 2 2-2 5-3 9-2v16c-4-1-7 0-9 2-2-2-5-3-9-2Z"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+<symbol id="i-volume" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</defs></svg>
+<header class="header"><div class="header-inner">
+  <a class="brand" href="#practice" aria-label="Echo 首页"><span class="brand-mark"><i></i><i></i><i></i><i></i><i></i></span>echo<span class="brand-dot">.</span></a>
+  <nav aria-label="主导航"><button class="nav-button active" data-tab="practice">复述练习</button><button class="nav-button" data-tab="library">我的句库 <span id="navCount">24</span></button></nav>
+  <button id="helpButton" class="help-button"><svg><use href="#i-info"/></svg><span>使用指南</span></button>
+</div></header>
+<main>
+<section class="intro"><div><div class="eyebrow"><span></span> YOUR DAILY SPEAKING SPACE</div><h1>听见，再说一遍<span>。</span></h1><p>给记忆两秒钟，给表达多一点自信。</p></div><div class="intro-note"><span class="note-icon">✦</span><div>不必一次完美<br><strong>每一次开口，都算进步。</strong></div></div></section>
+<div id="practiceView">
+<div class="practice-layout">
+<aside class="settings-card">
+  <div class="section-title"><span class="small-icon"><svg><use href="#i-volume"/></svg></span><h2>练习设置</h2><span class="muted-en">MAKE IT YOURS</span></div>
+  <label class="field-label" for="sceneSelect">练习句库</label><select id="sceneSelect"><option value="all">全部场景</option><option value="campus">校园生活</option><option value="academic">学术课堂</option><option value="daily">日常交流</option><option value="custom">我的自定义</option></select>
+  <div class="field-heading"><label class="field-label" for="waitSelect">听后等待</label><span class="mini-tag">默认 2 秒</span></div>
+  <div class="segmented" id="waitPresets" aria-label="等待时间"><button data-wait="0">0s</button><button data-wait="2" class="selected">2s</button><button data-wait="3">3s</button><button data-wait="5">5s</button></div>
+  <div class="custom-wait"><label for="waitSelect">自定义</label><div><input id="waitSelect" type="number" min="0" max="30" value="2" inputmode="numeric" aria-label="自定义等待秒数"><span>秒</span></div></div>
+  <div class="setting-divider"></div>
+  <div class="field-heading"><label class="field-label" for="rate">播放语速</label><output id="rateValue" for="rate">1.0×</output></div><input id="rate" type="range" min="0.6" max="1.2" value="1" step="0.1"><div class="range-labels"><span>慢一点</span><span>自然语速</span></div>
+  <label class="field-label voice-label" for="voiceSelect">英语发音</label><select id="voiceSelect"><option value="">系统英语语音</option></select>
+  <div class="field-heading record-limit"><label class="field-label" for="recordLimit">复述时长</label><select id="recordLimit"><option value="15">15 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option><option value="60">60 秒</option></select></div>
+  <div class="setting-divider"></div>
+  <label class="toggle-row"><span>倒计时后自动录音<small>准备好后，直接开口</small></span><input id="autoRecord" type="checkbox" checked><span class="switch"></span></label>
+  <label class="toggle-row"><span>随机出题<small>让每一次练习都有新鲜感</small></span><input id="shuffle" type="checkbox"><span class="switch"></span></label>
+  <button id="importShortcut" class="add-sentences"><svg><use href="#i-plus"/></svg>导入自己的句子</button>
+</aside>
+<div class="workspace">
+  <section class="practice-card" aria-label="复述练习">
+    <div class="card-top"><span class="pill" id="sceneBadge">校园生活</span><div class="sentence-position">句子 <strong id="position">01</strong><span>/ <span id="total">24</span></span></div></div>
+    <div class="steps" aria-label="练习步骤"><span class="step active" data-step="1"><b>1</b>听句子</span><i></i><span class="step" data-step="2"><b>2</b>等待 <span id="stepWait">2</span> 秒</span><i></i><span class="step" data-step="3"><b>3</b>开口复述</span><i></i><span class="step" data-step="4"><b>4</b>查看对照</span></div>
+    <div class="stage" id="stage">
+      <div id="stageVisual" class="stage-visual"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="sound-circle"><div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span id="countNumber" hidden>2</span></div><span class="spark spark-one">✦</span><span class="spark spark-two">✧</span></div>
+      <h2 id="stageTitle">先听清楚，再慢慢说</h2><p id="stageDescription">点击开始，专注听一句英语。原句会在复述后揭晓。</p>
+      <button id="primaryButton" class="primary-button"><svg><use href="#i-play"/></svg><span>开始练习</span></button>
+      <p class="stage-caption" id="stageCaption"><span class="tiny-dot"></span>听完后等待 2 秒 · 录音最长 20 秒</p>
+    </div>
+    <div id="answerPeek" class="answer-peek" hidden></div>
+    <div class="card-bottom"><button id="replayButton" class="text-button"><svg><use href="#i-repeat"/></svg>重听本句</button><button id="revealButton" class="text-button">查看原句</button><button id="nextButton" class="text-button">跳过此句<svg><use href="#i-next"/></svg></button></div>
+  </section>
+  <section id="reviewCard" class="review-card" hidden>
+    <div class="review-heading"><div><div class="eyebrow">LISTEN. NOTICE. IMPROVE.</div><h2>看看这次，说对了多少</h2></div><span id="scoreBadge" class="score-badge" hidden></span></div>
+    <div class="answer-label">原句 <span>REFERENCE</span></div><p id="originalText" class="original-text" lang="en"></p>
+    <div class="answer-label"><label for="transcript">你的复述</label><span>YOUR RESPONSE</span></div><textarea id="transcript" rows="3" lang="en" placeholder="语音识别结果会显示在这里。也可以输入你刚才说的内容。"></textarea>
+    <p id="transcriptHint" class="transcript-hint"></p><audio id="recordingAudio" controls hidden></audio>
+    <div id="comparison" class="comparison" hidden><div class="comparison-legend"><span><i class="dot-good"></i>匹配</span><span><i class="dot-miss"></i>遗漏 / 不同</span><span><i class="dot-extra"></i>多说</span></div><div id="diffText" class="diff-text" lang="en"></div><p id="comparisonSummary"></p><small>仅对照识别文字，不代表官方评分，也不评估发音或语调。</small></div>
+    <div class="review-actions"><button id="compareButton" class="secondary-button">对照文字<svg><use href="#i-check"/></svg></button><button id="retryButton" class="plain-button"><svg><use href="#i-repeat"/></svg>再练一次</button><button id="continueButton" class="primary-button compact">下一句<svg><use href="#i-arrow"/></svg></button></div>
+  </section>
+  <div class="bottom-grid"><div class="tip-card"><span class="tip-symbol">✧</span><div><h3>听的是句子，记的是意思。</h3><p>试着抓住主语、动作和关键信息，<br class="desktop-break">再把它们连成完整的一句话。</p></div></div><div class="session-card"><div class="session-label">今天的开口记录 <span>JUST KEEP GOING</span></div><div class="session-value"><strong id="todayCount">0</strong><span>次复述</span><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div><p>不限句数，按自己的节奏来。</p></div></div>
+</div></div>
+<div class="browser-note"><svg><use href="#i-info"/></svg><p id="browserNote">首次练习需要允许麦克风。建议使用最新版 Chrome 或 Edge；语音识别可用性取决于浏览器与网络。</p></div>
+</div>
+<section id="libraryView" class="library-view" hidden>
+  <div class="library-heading"><div><div class="eyebrow">YOUR WORDS, YOUR PACE</div><h2>把想练的句子，放在这里。</h2><p>内置 24 句场景示例，也可以导入自己的练习材料。</p></div><button id="openImportButton" class="primary-button compact"><svg><use href="#i-plus"/></svg>导入句子</button></div>
+  <div class="library-tools"><div class="filter-tabs" aria-label="句库分类"><button data-filter="all" class="selected">全部</button><button data-filter="campus">校园生活</button><button data-filter="academic">学术课堂</button><button data-filter="daily">日常交流</button><button data-filter="custom">我的自定义</button></div><label class="search-label"><span class="sr-only">搜索句子</span><input id="searchInput" type="search" placeholder="搜索句子…"></label></div>
+  <div id="sentenceList" class="sentence-list"></div><p class="library-footnote">内置内容为练习示例，并非官方真题。自定义句库和开口次数仅保存在当前浏览器。</p>
+</section>
+<footer><span class="footer-brand">echo.</span><span>A little practice, a clearer voice.</span><span>自主练习工具 · 非 ETS 官方产品</span></footer>
+</main>
+<dialog id="importDialog"><div class="dialog-heading"><div><div class="eyebrow">MAKE IT PERSONAL</div><h2>你的句子，你的练习。</h2></div><button class="icon-button close-dialog" aria-label="关闭"><svg><use href="#i-close"/></svg></button></div><p>每行粘贴一句英语。支持连续导入，不限制练习轮数。</p><label class="field-label" for="importText">练习句子</label><textarea id="importText" rows="8" lang="en" placeholder="The library will close early this Friday.&#10;Please bring your student ID to the meeting."></textarea><p id="importCount" class="import-count">0 句待导入 · 自动忽略空行和重复句子</p><div class="dialog-actions"><button class="plain-button close-dialog">取消</button><button id="importConfirm" class="primary-button compact">加入句库<svg><use href="#i-plus"/></svg></button></div></dialog>
+<dialog id="helpDialog"><div class="dialog-heading"><h2>准备好，说出你听到的。</h2><button class="icon-button close-dialog" aria-label="关闭"><svg><use href="#i-close"/></svg></button></div><ol class="help-list"><li><strong>选好句库和等待时间</strong><p>默认停顿 2 秒，你可以调成 0–30 秒；这是一种可自定义的练习节奏。</p></li><li><strong>听完，再开口</strong><p>点击开始并允许麦克风。语音播完后才开始倒计时，随后自动录音，也可以关闭自动录音。</p></li><li><strong>对照，发现遗漏</strong><p>录音结束后查看原句和识别文字。识别有误时可自行修改，再点击对照文字。</p></li></ol><div class="help-note">语音播放使用设备的英语语音；自动转写使用浏览器语音识别服务，部分浏览器可能将声音发送给其服务商。录音仅在当前页面用于回放，离开或切换句子后清除，本站不上传或保存录音。转写不可用时，可手动输入复述内容。</div><button class="primary-button compact close-dialog">开始我的练习<svg><use href="#i-arrow"/></svg></button></dialog>
+<div id="toast" role="status" class="toast" hidden></div>
+</body></html>
